@@ -1,75 +1,17 @@
-import React, { useReducer, useEffect } from "react";
-import "../App.css";
-import Header from "./Header";
-import Movie from "./Movie";
-import spinner from "../assets/ajax-loader.gif";
-import Search from "./Search";
-import { initialState, reducer } from "../store/reducer";
-import axios from "axios";
+import React from 'react'
+import { Switch, Route } from 'react-router-dom'
+import Home from '../Home'
+import Movie from '../components/ViewMovies'
 
-const MOVIE_API_URL = "https://www.omdbapi.com/?s=man&apikey=6a451f2c";
-
-const App = () => {
-  const [state, dispatch] = useReducer(reducer, initialState);
-
-  useEffect(() => {
-    axios.get(MOVIE_API_URL).then(jsonResponse => {
-      dispatch({
-        type: "SEARCH_MOVIES_SUCCESS",
-        payload: jsonResponse.data.Search
-      });
-    });
-  }, []);
-
-
-  const search = searchValue => {
-    dispatch({
-      type: "SEARCH_MOVIES_REQUEST"
-    });
-
-    axios(`https://www.omdbapi.com/?s=${searchValue}&apikey=6a451f2c`).then(
-      jsonResponse => {
-        if (jsonResponse.data.Response === "True") {
-          dispatch({
-            type: "SEARCH_MOVIES_SUCCESS",
-            payload: jsonResponse.data.Search
-          });
-        } else {
-          dispatch({
-            type: "SEARCH_MOVIES_FAILURE",
-            error: jsonResponse.data.Error
-          });
-        }
-      }
-    );
-  };
-
-  const { movies, errorMessage, loading } = state;
-
-  const retrievedMovies =
-    loading && !errorMessage ? (
-      <img className="spinner" src= {spinner}  alt="Loading spinner" />
-    ) : errorMessage ? (
-      <div className="errorMessage">{errorMessage}</div>
-    ) : (
-      movies.map((movie, index) => (
-        <Movie key={`${index}-${movie.Title}`} movie={movie} />
-      ))
-    );
-
+function App() {
   return (
-    <div className="App">
-      <div className="m-container">
-        <Header text="REACT MOVIE APP" />
+    <Switch>
+      <Route path='/' exact>
+        <Home />
+      </Route>
+      <Route path='/movies/:id' component={Movie} />
+    </Switch>
+  )
+}
 
-        <Search search={search} />
-
-        <p className="App-intro">Your Favorite Movies</p>
-
-        <div className="movies">{retrievedMovies}</div>
-      </div>
-    </div>
-  );
-};
-
-export default App;
+export default App
